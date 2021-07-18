@@ -1,15 +1,20 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from .models import IOTData, Tasks
 from .forms import TaskForm
+from .figures import get_plot,my_figure
+
 
 def graph(request):
-    iotdata = IOTData.objects.all()
-    return render(request, 'graps/graph.html', {'iotdata': iotdata} )
+
+    chart = get_plot()
+    return render(request, 'graps/graph.html', {'chart': chart})
+
 
 def tasks(request):
+
     tasks = Tasks.objects.all()
-    return render(request, 'graps/tasks.html', {'tasks': tasks} )
+    return render(request, 'graps/tasks.html', {'tasks': tasks})
+
 
 def newtask(request):
 
