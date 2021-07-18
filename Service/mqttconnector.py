@@ -3,7 +3,7 @@ import time
 import psycopg2
 import datetime
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-
+import os
 from paho.mqtt import client as mqtt_client
 
 broker = '81.29.139.80'
@@ -67,7 +67,7 @@ def subscribe(client: mqtt_client, topic):
 
     client.subscribe(topic)
     client.on_message = on_message
-    conn = psycopg2.connect(dbname='PythonIOT', user='postgres', password='P@ssw0rd', host='pgiot')
+    conn = psycopg2.connect(dbname=os.environ.get('DB_NAME'), user=os.environ.get('DB_USER'), password=os.environ.get('DB_PASS'), host=os.environ.get('DB_HOST'))
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     client.db_client = conn.cursor()
 

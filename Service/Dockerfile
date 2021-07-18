@@ -1,7 +1,9 @@
 FROM python:3
-COPY *.py /
-COPY requirements.txt /
+ENV PYTHONUNBUFFERED=1
+WORKDIR /code
+COPY requirements.txt /code/
+COPY *.py /code/
 RUN pip install -r requirements.txt
-CMD ["python3", "main.py"]
+CMD ["python3", "/code/main.py"]
 
 
