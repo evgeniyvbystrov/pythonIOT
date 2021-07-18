@@ -1,0 +1,28 @@
+{% extends 'graps/base.html' %}
+{% block title %} Основная страница {% endblock %}
+{% block name %} Графики {% endblock %}
+{% block table %}
+      <h2>Data</h2>
+      <div class="table-responsive">
+       <table class="table table-striped table-sm">
+         <thead>
+          <tr>
+              <th scope="col">#</th>
+              <th scope="col">Date/Time</th>
+              <th scope="col">Device</th>
+              <th scope="col">Value</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for el in iotdata %}
+            <tr>
+              <td>{{el.id}}</td>
+              <td>{{el.datetime}}</td>
+              <td>{{el.device}}</td>
+              <td>{{el.value}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+      </table>
+      </div>
+ {% endblock %}

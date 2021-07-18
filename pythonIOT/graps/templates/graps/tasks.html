@@ -1,0 +1,28 @@
+{% extends 'graps/base.html' %}
+{% block title %} Задачи {% endblock %}
+{% block name %} Задачи {% endblock %}
+{% block table %}
+      <h2>Tasks</h2>
+      <div class="table-responsive">
+       <table class="table table-striped table-sm">
+         <thead>
+          <tr>
+              <th scope="col">#</th>
+              <th scope="col">Date/Time</th>
+              <th scope="col">Device</th>
+              <th scope="col">Task</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for el in tasks %}
+            <tr>
+              <td>{{el.id}}</td>
+              <td>{{el.datetime}}</td>
+              <td>{{el.device}}</td>
+              <td>{{el.task}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+      </table>
+      </div>
+ {% endblock %}

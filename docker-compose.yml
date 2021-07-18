@@ -1,0 +1,28 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: PythonIOT
+      POSTGRES_PASSPOSTGRES_USER: P@ssword1
+      POSTGRES_PASSWORD: P@ssword1
+    networks:
+      - iot_network
+    hostname: 'pgiot'
+    container_name: pgiot
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'pgiot-data:/data'
+      - '/etc/localtime:/etc/localtime:ro'
+
+  app:
+    build:
+      context: ./Service
+    restart: always
+    ports:
+      - 8080:8080

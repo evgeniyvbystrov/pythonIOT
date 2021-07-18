@@ -1,0 +1,17 @@
+{% extends 'graps/base.html' %}
+{% block title %} Задачи {% endblock %}
+{% block name %} Задачи {% endblock %}
+{% block newtask %}
+<h1>
+    Создать задачу
+    <form method="post">
+        {% csrf_token %}
+        {{ form.title }}
+        {{ form.datetime }}
+        {{ form.device }}
+        {{ form.task }}
+        <button type="submit" class="btn btn-success">Добавить</button>
+        <span> {{ error }}</span>
+    </form>
+</h1>
+{% endblock %}
