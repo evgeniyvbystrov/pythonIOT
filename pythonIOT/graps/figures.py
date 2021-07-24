@@ -4,11 +4,7 @@ from io import BytesIO
 import psycopg2
 import os
 from matplotlib import dates
-
-def db_client(db_host, db_name, dn_user, db_pass):
-    conn = psycopg2.connect(dbname=db_name, user=dn_user, password=db_pass, host=db_host)
-    db_client = conn.cursor()
-    return db_client
+import datetime
 
 def my_figure():
 
@@ -32,24 +28,38 @@ def get_graph():
 
 
 def get_plot():
-    cur = db_client(os.environ.get('DB_HOST'), os.environ.get('DB_NAME'), os.environ.get('DB_USER'), os.environ.get('DB_PASS'))
-    cur.execute('SELECT datetime,value FROM public.graps_iotdata WHERE device=%s ORDER BY datetime desc LIMIT 1000', ['home/temperature'])
-
     plt.switch_backend('AGG')
-
-    timeseries = []
-    avg_io_wait = []
-    for r in cur:
-        timeseries.append(r[0])
-        avg_io_wait.append(r[1])
 
     fig = plt.figure(figsize=(10, 5))
     ax = fig.add_subplot(111, alpha=0.9)
     hfmt = dates.DateFormatter('%H:%M:%S')
     ax.xaxis_date()
     ax.xaxis.set_major_formatter(hfmt)
-    ax.plot(timeseries, avg_io_wait, color='blue', label='Temperature')
-    ax.set_title('Temperature', fontsize=16)
+
+    conn = psycopg2.connect(host=os.environ.get('DB_HOST'), dbname=os.environ.get('DB_NAME'), user=os.environ.get('DB_USER'), password=os.environ.get('DB_PASS'))
+    cur = conn.cursor()
+    query = 'SELECT device,datetime + \'3 hour\'::INTERVAL,value ' \
+            'FROM ' \
+            'public.graps_iotdata ' \
+            'WHERE ' \
+            'datetime >= (Select MAX(datetime) - \'1 day\'::INTERVAL FROM public.graps_iotdata)' \
+            'ORDER BY ' \
+            'datetime desc'
+    cur.execute(query)
+
+    values = {}
+    for r in cur:
+        series = values.get(r[0])
+        if series == None:
+            series = {'timeseries': [], 'values':[]}
+        series.get('timeseries').append(r[1])
+        series.get('values').append(r[2])
+        values[r[0]]=series
+
+    for v in values:
+        ax.plot(values.get(v).get('timeseries'), values.get(v).get('values'), label=v)
+
+    ax.set_title('Devices', fontsize=16)
     ax.set_ylabel('Percent')
     ax.grid(True)
     ax.legend(loc='upper right')
@@ -58,4 +68,36 @@ def get_plot():
 
     graph = get_graph()
 
+    conn.close()
+
     return graph
+
+
+def get_devices():
+
+    conn = psycopg2.connect(host=os.environ.get('DB_HOST'), dbname=os.environ.get('DB_NAME'), user=os.environ.get('DB_USER'), password=os.environ.get('DB_PASS'))
+    cur = conn.cursor()
+    query = 'SELECT DISTINCT SUBSTRING(device, 1, strpos(device,%s) - 1) FROM public.graps_iotdata'
+    cur.execute(query,'/')
+
+    result = []
+    for r in cur:
+        result.append(r[0].replace('/', '_'))
+    conn.close()
+
+    return result
+
+
+def set_current_state(device, state):
+
+    conn = psycopg2.connect(host=os.environ.get('DB_HOST'), dbname=os.environ.get('DB_NAME'), user=os.environ.get('DB_USER'), password=os.environ.get('DB_PASS'))
+    cur = conn.cursor()
+    query = 'INSERT INTO public.graps_tasks (datetime, device, task) VALUES (%s, %s, %s)'
+    if state == 'on':
+        state_req = 1
+    else:
+        state_req = 0
+    cur.execute(query,(datetime.datetime.now(),device, state_req))
+    conn.commit()
+    conn.close()
+    print(device, state)

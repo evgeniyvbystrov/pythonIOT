@@ -1,13 +1,19 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
 from .models import IOTData, Tasks
 from .forms import TaskForm
-from .figures import get_plot,my_figure
+from .figures import get_plot, get_devices, set_current_state
 
+
+def action_device(request, device, state):
+    set_current_state(device, state)
+    return HttpResponseRedirect('/graph')
 
 def graph(request):
 
+    devices = get_devices()
     chart = get_plot()
-    return render(request, 'graps/graph.html', {'chart': chart})
+    return render(request, 'graps/graph.html', {'chart': chart, 'devices': devices})
 
 
 def tasks(request):
@@ -26,7 +32,7 @@ def newtask(request):
 
     form = TaskForm()
     context = {
-        'form':form,
-        'title':'Выберите датчик'
+        'form': form,
+        'title': 'Выберите датчик'
     }
     return render(request, 'graps/newtask.html', context)

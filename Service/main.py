@@ -7,6 +7,7 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import time
 
+
 def db_check():
     try:
         conn = psycopg2.connect(dbname=os.environ.get('DB_NAME'), user=os.environ.get('DB_USER'),
@@ -22,16 +23,14 @@ def db_check():
         print('Waiting for connection')
         return False
 
+
 class PublishingThread(threading.Thread):
 
-    def __init__(self, topic):
-        self.topic = topic
-        super().__init__(name="topic" + topic)
-
-
     def run(self):
-        mqttconnector.start_publish(self.topic)
-        print("Thread ", self.topic)
+
+        mqttconnector.start_publish()
+        print("Thread ")
+
 
 class SubscirbingThread(threading.Thread):
 
@@ -41,15 +40,17 @@ class SubscirbingThread(threading.Thread):
 
 
     def run(self):
+
         mqttconnector.start_subscribe(self.topic)
         print("Thread ", self.topic)
+
 
 if __name__ == '__main__':
 
     while not db_check():
-        time.sleep(1)
-#    thread1 = PublishingThread("temperature1")
-#    thread1.start()
+        time.sleep(0.1)
+    thread1 = PublishingThread()
+    thread1.start()
     thread2 = SubscirbingThread("home/temperature")
     thread2.start()
     thread3 = SubscirbingThread("home/humidity")

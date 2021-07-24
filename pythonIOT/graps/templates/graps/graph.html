@@ -21,3 +21,19 @@
       {% endif %}
 {% endblock %}
 
+{% block newtask %}
+{% for device in devices %}
+<h1>
+    <div class="bd-example" data-example-id="">
+        <form action="devices/{{device}}/on" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">{{device}} ON</button>
+        </form>
+        <form action="devices/{{device}}/off" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">{{device}} OFF</button>
+        </form>
+    </div>
+</h1>
+{% endfor %}
+{% endblock %}

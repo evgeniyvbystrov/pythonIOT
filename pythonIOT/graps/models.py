@@ -23,3 +23,4 @@ class Tasks (models.Model):
 
     class Meta:
         verbose_name = 'Task'
+

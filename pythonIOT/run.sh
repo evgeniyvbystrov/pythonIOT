@@ -2,7 +2,7 @@
 
 until python check.py; do
   echo "Postgres is unavailable - sleeping"
-  sleep 1
+  sleep 0.1
 done
 
 echo "Postgres is up - executing command"
